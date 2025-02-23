@@ -1,7 +1,9 @@
 using api.Data;
 using api.Interfaces;
 using api.Repository;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,12 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
+
+// Newton Soft
+builder.Services.AddControllers().AddNewtonsoftJson(Options =>
+{
+  Options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+});
 
 var app = builder.Build();
 
