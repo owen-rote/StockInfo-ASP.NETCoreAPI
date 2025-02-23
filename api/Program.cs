@@ -11,17 +11,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Database Connection
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
   options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// Interfaces
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 
-// Newton Soft
+// Newtonsoft
 builder.Services.AddControllers().AddNewtonsoftJson(Options =>
 {
   Options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
