@@ -9,5 +9,7 @@ namespace api.Models
     public class AppUser : IdentityUser
     {
         // Things like username, email, etc are already implemented in IdentityUser
+        
+        public List<Portfolio> Portfolios { get; set; } = new List<Portfolio>();
     }
 }
