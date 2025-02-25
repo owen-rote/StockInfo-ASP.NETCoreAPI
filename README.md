@@ -22,6 +22,12 @@ A full-stack **ASP.NET Core 9** Web API implementing **JWT authentication**, **r
 - **Newtonsoft.Json** (Serialization, `ReferenceLoopHandling.Ignore`)
 - **Dependency Injection** (Scoped repository instances)
 
+## Security
+- **JWT Bearer Tokens** (`Microsoft.IdentityModel.Tokens`)
+- **Password Hashing** (`ASP.NET Identity` `PasswordHasher<TUser>`) 
+- **Role-Based Authorization** (`[Authorize(Roles="Admin")]`)
+- **CSRF Protection**: Tokens passed via `Authorization` header
+
 ## API Endpoints
 ### Authentication
 - `POST /api/account/login` - Issues JWT token
@@ -45,12 +51,6 @@ A full-stack **ASP.NET Core 9** Web API implementing **JWT authentication**, **r
 - `POST /api/comment/{stockId}` - Adds comment to stock (tied to user's auth)
 - `PUT /api/comment/{id}` - Edits comment (owner-only access)
 - `DELETE /api/comment/{id}` - Deletes comment (owner/admin only)
-
-## Security
-- **JWT Bearer Tokens** (`Microsoft.IdentityModel.Tokens`)
-- **Password Hashing** (`ASP.NET Identity` `PasswordHasher<TUser>`) 
-- **Role-Based Authorization** (`[Authorize(Roles="Admin")]`)
-- **CSRF Protection**: Tokens passed via `Authorization` header
 
 ## Setup
 1. Clone repo
