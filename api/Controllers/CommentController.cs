@@ -73,7 +73,6 @@ namespace api.Controllers
 
             // Sneak the commenter's username into the comment
             commentModel.AppUserId = appUser.Id;
-            await _commentRepo.CreateAsync(commentModel);
 
             await _commentRepo.CreateAsync(commentModel);
 
