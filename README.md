@@ -17,16 +17,12 @@ A full-stack **ASP.NET Core 9** Web API implementing **JWT authentication**, **r
 - **Entity Framework Core**
 - **SQL Server**
 - **JWT Authentication**
-- **ASP.NET Identity**
 - **Swagger**
-- **Newtonsoft.Json**
-- **Dependency Injection**
 
 ## Security
 - **JWT Bearer Tokens**
 - **Password Hashing** 
 - **Role-Based Authorization**
-- **CSRF Protection**: Tokens passed via `Authorization` header
 
 ## API Endpoints
 ### Authentication
