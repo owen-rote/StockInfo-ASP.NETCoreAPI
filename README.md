@@ -10,22 +10,22 @@ A full-stack **ASP.NET Core 9** Web API implementing **JWT authentication**, **r
 - **Comment System**: User-generated content.
 - **RBAC (Role-Based Access Control)**: Scoped access based on roles.
 - **Swagger UI**: Interactive API documentation.
-- **DI (Dependency Injection)**: Repository-service pattern.
+- **Dependency Injection**: Repository-service pattern.
 
 ## Technologies
 - **.NET 9**, **ASP.NET Core 9**, **C#**
-- **Entity Framework Core** (Code-first, migrations)
-- **SQL Server** (EF-backed persistence layer)
-- **JWT Authentication** (Bearer tokens, `System.IdentityModel.Tokens.Jwt`)
-- **ASP.NET Identity** (User and role management)
-- **Swagger** (API documentation)
-- **Newtonsoft.Json** (Serialization, `ReferenceLoopHandling.Ignore`)
-- **Dependency Injection** (Scoped repository instances)
+- **Entity Framework Core**
+- **SQL Server**
+- **JWT Authentication**
+- **ASP.NET Identity**
+- **Swagger**
+- **Newtonsoft.Json**
+- **Dependency Injection**
 
 ## Security
-- **JWT Bearer Tokens** (`Microsoft.IdentityModel.Tokens`)
-- **Password Hashing** (`ASP.NET Identity` `PasswordHasher<TUser>`) 
-- **Role-Based Authorization** (`[Authorize(Roles="Admin")]`)
+- **JWT Bearer Tokens**
+- **Password Hashing** 
+- **Role-Based Authorization**
 - **CSRF Protection**: Tokens passed via `Authorization` header
 
 ## API Endpoints
