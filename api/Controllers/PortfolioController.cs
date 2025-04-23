@@ -16,13 +16,13 @@ namespace api.Controllers
     public class PortfolioController : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IStockRepository _stockRepo;
+        private readonly StockService _stockService;
         private readonly IPortfolioRepository _portfolioRepo;
 
-        public PortfolioController(UserManager<AppUser> userManager, IStockRepository stockRepo, IPortfolioRepository portfolioRepo)
+        public PortfolioController(UserManager<AppUser> userManager, StockService stockService, IPortfolioRepository portfolioRepo)
         {
             _userManager = userManager;
-            _stockRepo = stockRepo;
+            _stockService = stockService;
             _portfolioRepo = portfolioRepo;
         }
 
@@ -42,7 +42,7 @@ namespace api.Controllers
         {
             var username = User.GetUsername();
             var appUser = await _userManager.FindByNameAsync(username);
-            var stock = await _stockRepo.GetBySymbolAsync(symbol);
+            var stock = await _stockService.GetBySymbolAsync(symbol);
 
             if (stock == null) return BadRequest("Stock not found");
 

@@ -1,0 +1,9 @@
+CREATE PROCEDURE spDeleteStock
+  @Id INT
+AS
+BEGIN
+  SET NOCOUNT ON;
+
+  DELETE FROM Stocks
+  WHERE Id = @Id;
+END

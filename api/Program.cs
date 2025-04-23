@@ -3,6 +3,7 @@ using api.Interfaces;
 using api.Models;
 using api.Repository;
 using api.Service;
+using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Options;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +55,11 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// Dapper DB connection
+builder.Services.AddScoped<IDbConnection>(db =>
+    new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
 // Authentication and Identity Configuration
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
@@ -82,15 +89,15 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["JWT:Audience"],
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-        System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
+        System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"]!)
       )
     };
 });
 
 // Interfaces
-builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<StockService>();
 builder.Services.AddScoped<IPortfolioRepository, PortfolioRepository>();
 
 // Newtonsoft
@@ -98,6 +105,8 @@ builder.Services.AddControllers().AddNewtonsoftJson(Options =>
 {
     Options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
+
+
 
 var app = builder.Build();
 

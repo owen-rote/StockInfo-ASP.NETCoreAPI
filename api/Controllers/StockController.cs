@@ -1,29 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Data;
 using System.Threading.Tasks;
-using api.Data;
 using api.Dtos.Stock;
 using api.Helpers;
-using api.Interfaces;
-using api.Mappers;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace api.Controllers
 {
-    [Route("/api/stock")]
+    [Route("api/stock")]
     [ApiController]
     public class StockController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
-        private readonly IStockRepository _stockRepo;
-        public StockController(ApplicationDBContext context, IStockRepository stockRepo)
+        private readonly string _connectionString;
+
+        public StockController(IConfiguration configuration)
         {
-            _stockRepo = stockRepo;
-            _context = context;
+            _connectionString = configuration.GetConnectionString("DefaultConnection")
+              ?? throw new InvalidOperationException("Invalid Connection String");
         }
+
+        private IDbConnection CreateConnection() => new SqlConnection(_connectionString);
 
         [HttpGet]
         [Authorize]
@@ -31,26 +29,35 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var stocks = await _stockRepo.GetAllAsync(query);
 
-            var stockDto = stocks.Select(s => s.ToStockDto()).ToList();
+            // Instantiate connection
+            // using: ensures connection is automatically disposed when the code block ends
+            using var connection = CreateConnection();
+            var stocks = await connection.QueryAsync<StockDto>(
+                "spGetAllStocks",
+                query,
+                commandType: CommandType.StoredProcedure
+                ).ConfigureAwait(false);
 
-            return Ok(stockDto);
+            return Ok(stocks);
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var stock = await _stockRepo.GetByIdAsync(id);
+            using var connection = CreateConnection();
+            var stock = await connection.QueryFirstOrDefaultAsync<StockDto>(
+              "spGetStockById",
+              new { Id = id },
+              commandType: CommandType.StoredProcedure
+            ).ConfigureAwait(false);
 
             if (stock == null)
             {
                 return NotFound();
             }
 
-            return Ok(stock.ToStockDto());
+            return Ok(stock);
         }
 
         [HttpPost]
@@ -58,37 +65,47 @@ namespace api.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var stockModel = stockDto.ToStockFromCreateDto();
-            await _stockRepo.CreateAsync(stockModel);
+            using var connection = CreateConnection();
+            var newStock = await connection.QuerySingleAsync<StockDto>(
+              "spCreateStock",
+              stockDto,
+              commandType: CommandType.StoredProcedure
+            ).ConfigureAwait(false);
 
-            return CreatedAtAction(nameof(GetById), new { id = stockModel.Id }, stockModel.ToStockDto());
+            return CreatedAtAction(nameof(GetById), new { id = newStock.Id }, newStock);
         }
 
-        [HttpPut]
-        [Route("{id:int}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateStockRequestDto updateDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var stockModel = await _stockRepo.UpdateAsync(id, updateDto);
+            using var connection = CreateConnection();
+            var updatedStock = await connection.QueryFirstOrDefaultAsync<StockDto>(
+              "spUpdateStock",
+              new { Id = id, updateDto.Symbol, updateDto.CompanyName, updateDto.Purchase, updateDto.LastDiv, updateDto.Industry, updateDto.MarketCap },
+              commandType: CommandType.StoredProcedure
+            ).ConfigureAwait(false);
 
-            if (stockModel == null)
+            if (updatedStock == null)
             {
                 return NotFound();
             }
 
-            return Ok(stockModel.ToStockDto());
+            return Ok(updatedStock);
         }
 
-        [HttpDelete]
-        [Route("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            using var connection = CreateConnection();
+            var result = await connection.ExecuteAsync(
+              "spDeleteStock",
+              new { Id = id },
+              commandType: CommandType.StoredProcedure)
+             .ConfigureAwait(false);
 
-            var stockModel = await _stockRepo.DeleteAsync(id);
-
-            if (stockModel == null)
+            if (result == 0)
             {
                 return NotFound();
             }

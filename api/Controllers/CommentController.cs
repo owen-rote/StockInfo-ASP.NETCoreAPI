@@ -7,7 +7,7 @@ using api.Extensions;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
-using api.Repository;
+using api.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,14 +18,15 @@ namespace api.Controllers
     public class CommentController : ControllerBase
     {
         private readonly ICommentRepository _commentRepo;
-        private readonly IStockRepository _stockRepo;
         private readonly UserManager<AppUser> _userManager;
+        private readonly StockService _stockService;
+        
 
-        public CommentController(ICommentRepository commentRepo, IStockRepository stockRepo, UserManager<AppUser> userManager)
+        public CommentController(ICommentRepository commentRepo, StockService stockService, UserManager<AppUser> userManager)
         {
             _commentRepo = commentRepo;
-            _stockRepo = stockRepo;
             _userManager = userManager;
+            _stockService = stockService;
         }
 
         [HttpGet]
@@ -57,11 +58,11 @@ namespace api.Controllers
         }
 
         [HttpPost("{stockId:int}")]
-        public async Task<IActionResult> Create([FromRoute] int stockId, CreateCommentDto commentDto, IStockRepository stockRepo)
+        public async Task<IActionResult> Create([FromRoute] int stockId, [FromBody] CreateCommentDto commentDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (!await _stockRepo.StockExists(stockId))
+            if (!await _stockService.StockExists(stockId))
             {
                 return BadRequest("Stock does not exist");
             }
@@ -71,13 +72,13 @@ namespace api.Controllers
 
             var commentModel = commentDto.ToCommentFromCreate(stockId);
 
-            // Sneak the commenter's username into the comment
             commentModel.AppUserId = appUser.Id;
 
             await _commentRepo.CreateAsync(commentModel);
 
             return CreatedAtAction(nameof(GetById), new { id = commentModel.Id }, commentModel.ToCommentDto());
         }
+
 
         [HttpPut]
         [Route("{id:int}")]
