@@ -8,16 +8,13 @@ A full-stack **ASP.NET Core 9** Web API implementing **JWT authentication**, **r
 - **Portfolio Management**: Users can manage owned stocks.
 - **Querying**: Searching, sorting with different parameters. Also Pagination options.
 - **Comment System**: User-generated content.
-- **RBAC (Role-Based Access Control)**: Scoped access based on roles.
-- **Swagger UI**: Interactive API documentation.
-- **Dependency Injection**: Repository-service pattern.
+- **Role-Based Access Control**: Scoped access based on roles.
 
 ## Technologies
 - **.NET 9**, **ASP.NET Core 9**, **C#**
 - **Entity Framework Core**
 - **SQL Server**
-- **JWT Authentication**
-- **Swagger**
+- **Swagger UI**
 
 ## Security
 - **JWT Bearer Tokens**
